@@ -54,6 +54,7 @@ public class FmRadioReceiver extends Activity implements OnClickListener, Adapte
 
     private FmReceiver.OnStartedListener mReceiverStartedListener; // The started listener is activated when the radio has started
     private FmReceiver.OnPlayingInStereoListener mOnPlayingInStereoListener;
+    private FmReceiver.OnForcedResetListener mReceiverResetListener;
 
     private TextView mTvFrequency; // Displays the currently tuned frequency
     private TextView mTvRDS_PSN, mTvRDS_RT; // Displays the current station name if there is adequate RDS data
@@ -223,7 +224,7 @@ public class FmRadioReceiver extends Activity implements OnClickListener, Adapte
                     mBtnSeekDown.setEnabled(true);
                     mBtnMute.setEnabled(true);
                     mBtnFullScan.setEnabled(true);
-                    initialBandScan();
+                    doFullScan();
                     startAudio();
                 }
             };
@@ -243,6 +244,23 @@ public class FmRadioReceiver extends Activity implements OnClickListener, Adapte
                 }
             };
 
+            /**
+             * Reset Listener
+             */
+            mReceiverResetListener = new FmReceiver.OnForcedResetListener() {
+
+                public void onForcedReset(int reason) {
+                    Utils.debugFunc("onForcedReset()", Log.INFO);
+                    // Deactivate all the buttons
+                    mBtnSeekUp.setEnabled(false);
+                    mBtnSeekDown.setEnabled(false);
+                    mBtnMute.setEnabled(false);
+                    mBtnFullScan.setEnabled(false);
+					if (mPlayer != null)
+						mPlayer.stop();
+                }
+            };
+
             mFmReceiver = FmReceiver.createInstance(this, this);
         }
     }
@@ -257,6 +275,7 @@ public class FmRadioReceiver extends Activity implements OnClickListener, Adapte
             mFmReceiver.removeOnRDSDataFoundListener(mReceiverRdsDataFoundListener);
             mFmReceiver.removeOnStartedListener(mReceiverStartedListener);
             mFmReceiver.removeOnPlayingInStereoListener(mOnPlayingInStereoListener);
+            mFmReceiver.removeOnForcedResetListener(mReceiverResetListener);
         }
     }
 
@@ -283,6 +302,8 @@ public class FmRadioReceiver extends Activity implements OnClickListener, Adapte
 		mFmReceiver.addOnRDSDataFoundListener(mReceiverRdsDataFoundListener);
 		mFmReceiver.addOnStartedListener(mReceiverStartedListener);
 		mFmReceiver.addOnPlayingInStereoListener(mOnPlayingInStereoListener);
+		mFmReceiver.addOnForcedResetListener(mReceiverResetListener);
+		turnRadioOn();
     }
 
     private void turnOffRadio() {
@@ -296,26 +317,6 @@ public class FmRadioReceiver extends Activity implements OnClickListener, Adapte
         	mPlayer = null;
         }
     }
-
-    /**
-     * Starts the initial bandscan in it's own thread
-     */
-    private void initialBandScan() {
-        Utils.debugFunc("initialBandScan()", Log.INFO);
-        Thread bandscanThread = new Thread() {
-            public void run() {
-                try {
-                    mFmReceiver.startFullScan();
-                } catch (IllegalStateException e) {
-                    showToast(R.string.unable_to_scan, Toast.LENGTH_LONG);
-                    Utils.debugFunc("initialBandScan(). E.: " + e.getMessage(), Log.ERROR);
-                    return;
-                }
-            }
-        };
-        bandscanThread.start();
-    }
-
 
     /**
      * Helper method to display toast

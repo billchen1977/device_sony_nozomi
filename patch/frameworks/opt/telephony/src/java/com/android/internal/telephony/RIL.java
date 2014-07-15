@@ -2447,6 +2447,10 @@ public final class RIL extends BaseCommands implements CommandsInterface {
             case RIL_REQUEST_SET_INITIAL_ATTACH_APN: ret = responseVoid(p); break;
             case RIL_REQUEST_IMS_REGISTRATION_STATE: ret = responseInts(p); break;
             case RIL_REQUEST_IMS_SEND_SMS: ret =  responseSMS(p); break;
+            case RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC: ret =  responseICC_IO(p); break;
+            case RIL_REQUEST_SIM_OPEN_CHANNEL: ret  = responseInts(p); break;
+            case RIL_REQUEST_SIM_CLOSE_CHANNEL: ret  = responseVoid(p); break;
+            case RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL: ret = responseICC_IO(p); break;
             default:
                 throw new RuntimeException("Unrecognized solicited response: " + rr.mRequest);
             //break;
@@ -3752,6 +3756,10 @@ public final class RIL extends BaseCommands implements CommandsInterface {
             case RIL_REQUEST_SET_INITIAL_ATTACH_APN: return "RIL_REQUEST_SET_INITIAL_ATTACH_APN";
             case RIL_REQUEST_IMS_REGISTRATION_STATE: return "RIL_REQUEST_IMS_REGISTRATION_STATE";
             case RIL_REQUEST_IMS_SEND_SMS: return "RIL_REQUEST_IMS_SEND_SMS";
+            case RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC: return "RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC";
+            case RIL_REQUEST_SIM_OPEN_CHANNEL: return "RIL_REQUEST_SIM_OPEN_CHANNEL";
+            case RIL_REQUEST_SIM_CLOSE_CHANNEL: return "RIL_REQUEST_SIM_CLOSE_CHANNEL";
+            case RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL: return "RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL";
             default: return "<unknown request>";
         }
     }
@@ -4048,21 +4056,18 @@ public final class RIL extends BaseCommands implements CommandsInterface {
      */
     @Override
     public void getCellInfoList(Message result) {
-/*
         RILRequest rr = RILRequest.obtain(RIL_REQUEST_GET_CELL_INFO_LIST, result);
 
         if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
 
-        send(rr);
-*/
-    }
+        //send(rr);
+   }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void setCellInfoListRate(int rateInMillis, Message response) {
-/*
         if (RILJ_LOGD) riljLog("setCellInfoListRate: " + rateInMillis);
         RILRequest rr = RILRequest.obtain(RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE, response);
 
@@ -4071,13 +4076,11 @@ public final class RIL extends BaseCommands implements CommandsInterface {
 
         if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
 
-        send(rr);
-*/
+        //send(rr);
     }
 
     public void setInitialAttachApn(String apn, String protocol, int authType, String username,
             String password, Message result) {
-/*
         RILRequest rr = RILRequest.obtain(RIL_REQUEST_SET_INITIAL_ATTACH_APN, null);
 
         if (RILJ_LOGD) riljLog("Set RIL_REQUEST_SET_INITIAL_ATTACH_APN");
@@ -4092,8 +4095,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
                 + ", apn:" + apn + ", protocol:" + protocol + ", authType:" + authType
                 + ", username:" + username + ", password:" + password);
 
-        send(rr);
-*/
+        //send(rr);
     }
 
     /* (non-Javadoc)
@@ -4127,5 +4129,82 @@ public final class RIL extends BaseCommands implements CommandsInterface {
         }
         pw.println(" mLastNITZTimeInfo=" + mLastNITZTimeInfo);
         pw.println(" mTestingEmergencyCall=" + mTestingEmergencyCall.get());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void iccOpenLogicalChannel(String AID, Message response) {
+        RILRequest rr = RILRequest.obtain(RIL_REQUEST_SIM_OPEN_CHANNEL, response);
+        rr.mParcel.writeString(AID);
+
+        if (RILJ_LOGD)
+            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+
+        //send(rr);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void iccCloseLogicalChannel(int channel, Message response) {
+        RILRequest rr = RILRequest.obtain(RIL_REQUEST_SIM_CLOSE_CHANNEL, response);
+        rr.mParcel.writeInt(1);
+        rr.mParcel.writeInt(channel);
+
+        if (RILJ_LOGD)
+            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+
+        //send(rr);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void iccTransmitApduLogicalChannel(int channel, int cla, int instruction,
+            int p1, int p2, int p3, String data, Message response) {
+        if (channel <= 0) {
+            throw new RuntimeException(
+                "Invalid channel in iccTransmitApduLogicalChannel: " + channel);
+        }
+
+        iccTransmitApduHelper(channel, cla, instruction, p1, p2, p3, data, response);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void iccTransmitApduBasicChannel(int cla, int instruction, int p1, int p2,
+            int p3, String data, Message response) {
+        iccTransmitApduHelper(0, cla, instruction, p1, p2, p3, data, response);
+    }
+
+    /*
+     * Helper function for the iccTransmitApdu* commands above.
+     */
+    private void iccTransmitApduHelper(int channel, int cla, int instruction,
+            int p1, int p2, int p3, String data, Message response) {
+        RILRequest rr;
+        if (channel == 0)
+            rr = RILRequest.obtain(RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC, response);
+        else
+            rr = RILRequest.obtain(RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL, response);
+
+        rr.mParcel.writeInt(channel);
+        rr.mParcel.writeInt(cla);
+        rr.mParcel.writeInt(instruction);
+        rr.mParcel.writeInt(p1);
+        rr.mParcel.writeInt(p2);
+        rr.mParcel.writeInt(p3);
+        rr.mParcel.writeString(data);
+
+        if (RILJ_LOGD)
+            riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+
+        //send(rr);
     }
 }

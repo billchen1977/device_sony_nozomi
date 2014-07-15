@@ -437,6 +437,14 @@ typedef struct {
 static const audio_offload_info_t AUDIO_INFO_INITIALIZER = {
     version: AUDIO_OFFLOAD_INFO_VERSION_CURRENT,
     size: sizeof(audio_offload_info_t),
+    sample_rate: 0,
+    channel_mask: 0,
+    format: AUDIO_FORMAT_DEFAULT,
+    stream_type: AUDIO_STREAM_VOICE_CALL,
+    bit_rate: 0,
+    duration_us: 0,
+    has_video: false,
+    is_streaming: false
 };
 
 static inline bool audio_is_output_device(audio_devices_t device)
@@ -474,12 +482,16 @@ static inline bool audio_is_a2dp_device(audio_devices_t device)
 
 static inline bool audio_is_bluetooth_sco_device(audio_devices_t device)
 {
-    device &= ~AUDIO_DEVICE_BIT_IN;
-    if ((popcount(device) == 1) && (device & (AUDIO_DEVICE_OUT_ALL_SCO |
-                   AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET)))
-        return true;
-    else
-        return false;
+    if ((device & AUDIO_DEVICE_BIT_IN) == 0) {
+        if ((popcount(device) == 1) && ((device & ~AUDIO_DEVICE_OUT_ALL_SCO) == 0))
+            return true;
+    } else {
+        device &= ~AUDIO_DEVICE_BIT_IN;
+        if ((popcount(device) == 1) && ((device & ~AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET) == 0))
+            return true;
+    }
+
+    return false;
 }
 
 static inline bool audio_is_usb_device(audio_devices_t device)

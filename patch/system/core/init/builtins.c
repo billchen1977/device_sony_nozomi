@@ -33,7 +33,6 @@
 #include <linux/loop.h>
 #include <cutils/partition_utils.h>
 #include <cutils/android_reboot.h>
-#include <sys/system_properties.h>
 #include <fs_mgr.h>
 
 #include <selinux/selinux.h>
@@ -196,6 +195,8 @@ static void service_start_if_not_disabled(struct service *svc)
 {
     if (!(svc->flags & SVC_DISABLED)) {
         service_start(svc, NULL);
+    } else {
+        svc->flags |= SVC_DISABLED_START;
     }
 }
 
@@ -236,6 +237,21 @@ int do_class_reset(int nargs, char **args)
 int do_domainname(int nargs, char **args)
 {
     return write_file("/proc/sys/kernel/domainname", args[1]);
+}
+
+int do_enable(int nargs, char **args)
+{
+    struct service *svc;
+    svc = service_find_by_name(args[1]);
+    if (svc) {
+        svc->flags &= ~(SVC_DISABLED | SVC_RC_DISABLED);
+        if (svc->flags & SVC_DISABLED_START) {
+            service_start(svc, NULL);
+        }
+    } else {
+        return -1;
+    }
+    return 0;
 }
 
 #ifdef LEGACY_BLOB_COMPATIBLE
@@ -833,12 +849,24 @@ int do_chmod(int nargs, char **args) {
 
 int do_restorecon(int nargs, char **args) {
     int i;
+    int ret = 0;
 
     for (i = 1; i < nargs; i++) {
         if (restorecon(args[i]) < 0)
-            return -errno;
+            ret = -errno;
     }
-    return 0;
+    return ret;
+}
+
+int do_restorecon_recursive(int nargs, char **args) {
+    int i;
+    int ret = 0;
+
+    for (i = 1; i < nargs; i++) {
+        if (restorecon_recursive(args[i]) < 0)
+            ret = -errno;
+    }
+    return ret;
 }
 
 int do_setsebool(int nargs, char **args) {

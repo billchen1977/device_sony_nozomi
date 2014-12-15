@@ -73,6 +73,10 @@ import java.util.ArrayList;
 
 import libcore.util.Objects;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+
 /**
  * The power manager service is responsible for coordinating power management
  * functions on the device.
@@ -512,7 +516,27 @@ public final class PowerManagerService extends SystemService
 
             mLightsManager = getLocalService(LightsManager.class);
             mAttentionLight = mLightsManager.getLight(LightsManager.LIGHT_ID_ATTENTION);
-            mButtonsLight = mLightsManager.getLight(LightsManager.LIGHT_ID_BUTTONS);
+
+            // Lightbar for Nozomi
+            java.lang.Process p = null;
+            String isLightbar = null;
+            try {
+                p = new java.lang.ProcessBuilder("/system/bin/getprop", "sys.lightbar.enable").redirectErrorStream(true).start();
+                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line = "";
+                while ((line=br.readLine()) != null){
+                    isLightbar = line;
+                }
+                p.destroy();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (isLightbar != null && isLightbar.equals("false")) {
+                mButtonsLight = null;
+            } else {
+                mButtonsLight = mLightsManager.getLight(LightsManager.LIGHT_ID_BUTTONS);
+            }
 
             // Initialize display power management.
             mDisplayManagerInternal.initPowerManagement(
@@ -1454,11 +1478,13 @@ public final class PowerManagerService extends SystemService
                     nextTimeout = mLastUserActivityTime
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
-                        if (now > mLastUserActivityTime + BUTTON_ON_DURATION) {
-                            mButtonsLight.turnOff();
-                        } else if (mDisplayPowerRequest.isBrightOrDim()) {
-                            mButtonsLight.setBrightness(mDisplayPowerRequest.screenBrightness);
-                            nextTimeout = now + BUTTON_ON_DURATION;
+                        if (mButtonsLight != null) {
+                            if (now > mLastUserActivityTime + BUTTON_ON_DURATION) {
+                                mButtonsLight.turnOff();
+                            } else if (mDisplayPowerRequest.isBrightOrDim()) {
+                                mButtonsLight.setBrightness(mDisplayPowerRequest.screenBrightness);
+                                nextTimeout = now + BUTTON_ON_DURATION;
+                            }
                         }
                         mUserActivitySummary = USER_ACTIVITY_SCREEN_BRIGHT;
                     } else {

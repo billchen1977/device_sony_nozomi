@@ -218,6 +218,7 @@ PRODUCT_PACKAGES += \
     libemoji \
     e2fsck \
     fsck_msdos \
+    fsck.f2fs \
     Email \
     Stk
 

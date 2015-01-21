@@ -219,6 +219,7 @@ PRODUCT_PACKAGES += \
     e2fsck \
     fsck_msdos \
     fsck.f2fs \
+    mkfs.f2fs \
     Email \
     Stk
 

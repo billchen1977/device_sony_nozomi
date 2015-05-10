@@ -3,6 +3,11 @@
 # system.prop for nozomi
 #
 
+# ksm 
+sys.ksm.pages_to_scan=256
+sys.ksm.sleep_millisecs=3000
+sys.ksm.enable=false
+
 # zram 
 sys.zram.size=134217728
 sys.zram.enable=true

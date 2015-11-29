@@ -23,7 +23,6 @@
 # cpu
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
-TARGET_CPU_SMP := true
 TARGET_CPU_VARIANT := cortex-a8
 TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv7-a-neon
@@ -115,9 +114,6 @@ BOARD_MKBOOTIMG_ARGS := \
 	vendor/sony/nozomi/proprietary/boot/RPM.bin@0x20000,rpm
 
 -include vendor/sony/nozomi/BoardConfigVendor.mk
-
-# Enable Minikin text layout engine (will be the default soon)
-USE_MINIKIN := true
 
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true

@@ -35,8 +35,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <media/hardware/HardwareAPI.h>
 #ifdef USE_ION
 #include <linux/msm_ion.h>
-#else
-#include <linux/android_pmem.h>
 #endif
 
 #define MPEG4_SP_START 0
@@ -337,10 +335,10 @@ void venc_dev::venc_close()
 #endif
 }
 
-bool venc_dev::venc_set_buf_req(unsigned long *min_buff_count,
-                                unsigned long *actual_buff_count,
-                                unsigned long *buff_size,
-                                unsigned long port)
+bool venc_dev::venc_set_buf_req(OMX_U32 *min_buff_count,
+                                OMX_U32 *actual_buff_count,
+                                OMX_U32 *buff_size,
+                                OMX_U32 port)
 {
   struct venc_ioctl_msg ioctl_msg = {NULL,NULL};
   unsigned long temp_count = 0;
@@ -503,10 +501,10 @@ bool venc_dev::venc_get_seq_hdr(void *buffer,
   return true;
 }
 
-bool venc_dev::venc_get_buf_req(unsigned long *min_buff_count,
-                                unsigned long *actual_buff_count,
-                                unsigned long *buff_size,
-                                unsigned long port)
+bool venc_dev::venc_get_buf_req(OMX_U32 *min_buff_count,
+                                OMX_U32 *actual_buff_count,
+                                OMX_U32 *buff_size,
+                                OMX_U32 port)
 {
   struct venc_ioctl_msg ioctl_msg = {NULL,NULL};
 

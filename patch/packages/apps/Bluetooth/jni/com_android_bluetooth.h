@@ -23,10 +23,6 @@
 #include "hardware/hardware.h"
 #include "hardware/bluetooth.h"
 
-#ifdef BOARD_HAVE_FMRADIO_BCM
-#include "hardware/fmradio.h"
-#endif
-
 namespace android {
 
 void checkAndClearExceptionFromCallback(JNIEnv* env,
@@ -56,10 +52,12 @@ int register_com_android_bluetooth_pan(JNIEnv* env);
 
 int register_com_android_bluetooth_gatt (JNIEnv* env);
 
+int register_com_android_bluetooth_sdp (JNIEnv* env);
+
 #ifdef BOARD_HAVE_FMRADIO_BCM
-const fm_interface_t* getFmInterface();
-int register_com_broadcom_fm(JNIEnv* env);
+int register_com_broadcom_fm_service(JNIEnv* env);
 #endif
+
 }
 
 #endif /* COM_ANDROID_BLUETOOTH_H */

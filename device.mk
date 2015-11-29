@@ -14,18 +14,13 @@
 # limitations under the License.
 #
 
-# define build target(normal/native/loop)
-BUILD_TARGET := normal
-
 # overlay
 DEVICE_PACKAGE_OVERLAYS += device/sony/nozomi/overlay
 
-# This device is xhdpi.  However the platform doesn't
-# currently contain all of the bitmaps at xhdpi density so
-# we do this little trick to fall back to the hdpi version
-# if the xhdpi doesn't exist.
-PRODUCT_AAPT_CONFIG := normal hdpi xhdpi
+PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := xhdpi
+
+PRODUCT_CHARACTERISTICS := nosdcard
 
 # kernel
 PRODUCT_PACKAGES += \
@@ -65,9 +60,14 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
     $(LOCAL_PATH)/config/media_codecs.xml:system/etc/media_codecs.xml \
+    $(LOCAL_PATH)/config/media_codecs_performance.xml:system/etc/media_codecs_performance.xml \
     $(LOCAL_PATH)/config/media_profiles.xml:system/etc/media_profiles.xml \
     $(LOCAL_PATH)/config/audio_policy.conf:system/etc/audio_policy.conf \
     $(LOCAL_PATH)/config/mixer_paths.xml:system/etc/mixer_paths.xml
+
+# Reduce client buffer size for fast audio output tracks
+PRODUCT_PROPERTY_OVERRIDES += \
+    af.fast_track_multiplier=1
 
 # NFC
 PRODUCT_PACKAGES += \
@@ -123,19 +123,20 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.ethernet.xml:system/etc/permissions/android.hardware.ethernet.xml \
     frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
-    frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
-    frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
     frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
     frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.sensor.compass.xml \
     frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
     frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
     frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
+    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
-    frameworks/native/data/etc/android.software.print.xml:system/etc/permissions/android.software.print.xml \
-    frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
-    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
+    frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
+    frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
+    frameworks/native/data/etc/android.software.print.xml:system/etc/permissions/android.software.print.xml \
+    frameworks/native/data/etc/android.software.midi.xml:system/etc/permissions/android.software.midi.xml \
+    frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
     frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
     frameworks/native/data/etc/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
     frameworks/native/data/etc/com.nxp.mifare.xml:system/etc/permissions/com.nxp.mifare.xml
@@ -164,30 +165,16 @@ PRODUCT_COPY_FILES += \
 # Custom init / uevent
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/config/init.semc.rc:root/init.semc.rc \
-    $(LOCAL_PATH)/config/init.sony.rc:root/init.sony.rc \
     $(LOCAL_PATH)/config/ueventd.semc.rc:root/ueventd.semc.rc
 
-# Normal/Native/Loop
-ifeq ($(BUILD_TARGET),native)
-    PRODUCT_COPY_FILES += \
-        $(LOCAL_PATH)/config/fstab.semc:root/fstab.semc \
-        $(LOCAL_PATH)/config/init.sony-platform.native.rc:root/init.sony-platform.rc
-else ifeq ($(BUILD_TARGET),loop)
-    PRODUCT_COPY_FILES += \
-        $(LOCAL_PATH)/config/fstab.loop.semc:root/fstab.semc \
-        $(LOCAL_PATH)/config/init.sony-platform.loop.rc:root/init.sony-platform.rc
-    PRODUCT_PACKAGES += \
-        losetup-static
-else
-    PRODUCT_COPY_FILES += \
-        $(LOCAL_PATH)/config/fstab.semc:root/fstab.semc \
-        $(LOCAL_PATH)/config/init.sony-platform.rc:root/init.sony-platform.rc
-    PRODUCT_PACKAGES += \
-        busybox-static \
-        extract_elf_ramdisk \
-        init.sh \
-        recovery.sh
-endif
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/config/fstab.semc:root/fstab.semc \
+    $(LOCAL_PATH)/config/init.sony-platform.rc:root/init.sony-platform.rc
+
+PRODUCT_PACKAGES += \
+    busybox-static \
+    extract_elf_ramdisk \
+    init.sh
 
 # USB
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
@@ -198,9 +185,7 @@ PRODUCT_PACKAGES += \
 
 # Fm radio
 PRODUCT_PACKAGES += \
-    com.stericsson.hardware.fm \
-    com.stericsson.hardware.fm.xml \
-    FmRadio
+    FMRadio
 
 # Key layouts and touchscreen
 PRODUCT_COPY_FILES += \
@@ -213,15 +198,24 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/config/simple_remote.kl:system/usr/keylayout/simple_remote.kl \
     $(LOCAL_PATH)/config/simple_remote_appkey.kl:system/usr/keylayout/simple_remote_appkey.kl
 
+# Live Wallpapers
+PRODUCT_PACKAGES += \
+    LiveWallpapersPicker \
+    librs_jni
+
 # Software
 PRODUCT_PACKAGES += \
     libemoji \
     e2fsck \
     fsck_msdos \
     fsck.f2fs \
-    mkfs.f2fs \
-    Email \
-    Stk
+    make_f2fs \
+    Stk \
+    Terminal
+
+PRODUCT_PACKAGES += \
+    libstlport \
+    libCrypto
 
 PRODUCT_PACKAGES += \
     busybox
@@ -231,6 +225,10 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     qemu.hw.mainkeys=1
+
+# Dalvik
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.dex2oat-swap=false
 
 PRODUCT_TAGS += dalvik.gc.type-precise
 

@@ -48,7 +48,9 @@
 using namespace gralloc;
 using namespace qdutils;
 
+namespace android {
 ANDROID_SINGLETON_STATIC_INSTANCE(AdrenoMemInfo);
+}
 
 //Common functions
 static bool canFallback(int usage, bool triedSystem)
@@ -104,7 +106,7 @@ int AdrenoMemInfo::getStride(int width, int format)
 {
     int stride = ALIGN(width, 32);
     // Currently surface padding is only computed for RGB* surfaces.
-    if (format <= HAL_PIXEL_FORMAT_sRGB_X_8888) {
+    if (format <= HAL_PIXEL_FORMAT_BGRA_8888) {
         int bpp = 4;
         switch(format)
         {
@@ -259,8 +261,6 @@ size_t getBufferSizeAndDimensions(int width, int height, int format,
         case HAL_PIXEL_FORMAT_RGBA_8888:
         case HAL_PIXEL_FORMAT_RGBX_8888:
         case HAL_PIXEL_FORMAT_BGRA_8888:
-        case HAL_PIXEL_FORMAT_sRGB_A_8888:
-        case HAL_PIXEL_FORMAT_sRGB_X_8888:
             size = alignedw * alignedh * 4;
             break;
         case HAL_PIXEL_FORMAT_RGB_888:
@@ -281,8 +281,15 @@ size_t getBufferSizeAndDimensions(int width, int height, int format,
             // The chroma plane is subsampled,
             // but the pitch in bytes is unchanged
             // The GPU needs 4K alignment, but the video decoder needs 8K
+            alignedw = ALIGN(alignedw, 128);
             size  = ALIGN( alignedw * alignedh, 8192);
             size += ALIGN( alignedw * ALIGN(height/2, 32), 8192);
+            break;
+        case HAL_PIXEL_FORMAT_NV12:
+            alignedw = ALIGN(width, 16);
+            alignedh = height;
+            size  = ALIGN( ALIGN(width, 128) * ALIGN(height, 32), 8192);
+            size += ALIGN( ALIGN(width, 128) * ALIGN(height/2, 32), 8192);
             break;
         case HAL_PIXEL_FORMAT_NV12_ENCODEABLE:
         case HAL_PIXEL_FORMAT_YV12:

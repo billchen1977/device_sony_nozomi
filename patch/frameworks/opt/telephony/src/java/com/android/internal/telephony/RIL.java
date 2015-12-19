@@ -183,9 +183,6 @@ class SonyRIL {
     }
 }
 
-/**
- * {@hide}
- */
 class RILRequest {
     static final String LOG_TAG = "RilRequest";
 
@@ -771,6 +768,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
                     Context.DISPLAY_SERVICE);
             mDefaultDisplay = dm.getDisplay(Display.DEFAULT_DISPLAY);
             dm.registerDisplayListener(mDisplayListener, null);
+            mDefaultDisplayState = mDefaultDisplay.getState();
 
             IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = context.registerReceiver(mBatteryStateListener, filter);

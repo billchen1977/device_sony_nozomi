@@ -327,6 +327,13 @@ int platform_get_snd_device_acdb_id(snd_device_t snd_device __unused)
     return -ENOSYS;
 }
 
+void platform_add_operator_specific_device(snd_device_t snd_device __unused,
+                                           const char *operator __unused,
+                                           const char *mixer_path __unused,
+                                           unsigned int acdb_id __unused)
+{
+}
+
 static int send_audio_calibration(void *platform, snd_device_t snd_device)
 {
     struct platform_data *my_data = (struct platform_data *)platform;
@@ -424,6 +431,11 @@ int platform_start_voice_call(void *platform, uint32_t vsid __unused)
 int platform_stop_voice_call(void *platform, uint32_t vsid __unused)
 {
     return 0;
+}
+
+void platform_set_speaker_gain_in_combo(struct audio_device *adev __unused,
+                                        snd_device_t snd_device  __unused,
+                                        bool enable __unused) {
 }
 
 int platform_set_voice_volume(void *platform, int volume)

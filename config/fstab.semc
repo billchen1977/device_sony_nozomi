@@ -6,7 +6,7 @@
 /dev/block/platform/msm_sdcc.1/by-num/p12  /system           ext4    ro,barrier=1                                                                wait
 /dev/block/platform/msm_sdcc.1/by-num/p13  /cache            f2fs    noatime,nosuid,nodev,rw,discard,inline_xattr                                wait,check
 /dev/block/platform/msm_sdcc.1/by-num/p13  /cache            ext4    noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,errors=panic   wait,check
-/dev/block/platform/msm_sdcc.1/by-num/p14  /data             f2fs    rw,nosuid,nodev,noatime,nodiratime,inline_data,inline_xattr                 wait,check,formattable,encryptable=footer,length=-16384
+/dev/block/platform/msm_sdcc.1/by-num/p14  /data             f2fs    rw,nosuid,nodev,noatime,nodiratime,inline_xattr                             wait,check,formattable,encryptable=footer,length=-16384
 /dev/block/platform/msm_sdcc.1/by-num/p14  /data             ext4    noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,errors=panic   wait,check,formattable,encryptable=footer,length=-16384
 /dev/block/platform/msm_sdcc.1/by-num/p10  /idd              ext4    noatime,nosuid,nodev,barrier=0                                              wait,check
 /devices/platform/msm_sdcc.1/mmc_host/mmc0 auto              auto    defaults                                                                    voldmanaged=sdcard1:15,noemulatedsd,encryptable=userdata

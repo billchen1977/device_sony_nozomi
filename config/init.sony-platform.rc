@@ -36,6 +36,7 @@ on early-boot
 
     # Start the offline charging (This blocks booting further in some cases)
     write /sys/power/autosleep mem
+    setprop persist.chargemon.active 1
     exec - root root -- /system/bin/chargemon
     write /sys/power/autosleep off
 

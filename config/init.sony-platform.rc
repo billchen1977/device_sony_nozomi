@@ -35,7 +35,9 @@ on early-boot
     start secchan
 
     # Start the offline charging (This blocks booting further in some cases)
+    write /sys/power/autosleep mem
     exec - root root -- /system/bin/chargemon
+    write /sys/power/autosleep off
 
     # Touch firmware update
     exec - root root -- /system/bin/sh /system/etc/clearpad_fwloader.sh

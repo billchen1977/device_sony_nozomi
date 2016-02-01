@@ -167,8 +167,6 @@ on boot
     mkdir /dev/bus 0711 system system
     mkdir /dev/bus/usb 0711 system system
 
-    exec - root root -- /system/bin/cal_data_manager
-
     # Do not power down SIM in flight mode (required for Wi-Fi EAP-SIM)
     setprop persist.radio.apm_sim_not_pwdn 0
 
@@ -224,8 +222,10 @@ on property:sys.usb.config=midi,adb
     setprop sys.usb.state ${sys.usb.config}
 
 
-
-
+service cal_data_manager /system/bin/cal_data_manager
+    class main
+    user root
+    oneshot
 
 # SEMC, TA Daemon
 service tad /system/bin/tad /dev/block/mmcblk0p1 0,16,256

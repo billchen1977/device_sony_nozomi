@@ -31,14 +31,14 @@ on early-boot
     #Run pre_hw_config.sh before entering charge only mode.
     exec - root root -- /system/bin/sh /system/etc/pre_hw_config.sh
 
-    #Start secchan daemon service before entering charge only mode.
-    start secchan
-
     # Start the offline charging (This blocks booting further in some cases)
     write /sys/power/autosleep mem
     setprop persist.chargemon.active 1
     exec - root root -- /system/bin/chargemon
     write /sys/power/autosleep off
+
+    #Start secchan daemon service.
+    start secchan
 
     # Touch firmware update
     exec - root root -- /system/bin/sh /system/etc/clearpad_fwloader.sh

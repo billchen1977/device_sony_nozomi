@@ -486,7 +486,7 @@
   <project path="tools/swt" name="platform/tools/swt" groups="notdefault,tools" />
   <project path="tools/tradefederation" name="platform/tools/tradefederation" groups="notdefault,tradefed" />
 
-  <project path="external/openssl_legacy" name="platform/external/openssl" groups="pdk" revision="lollipop-mr1-release" />
+  <project path="external/openssl" name="platform/external/openssl" groups="pdk" revision="lollipop-mr1-release" />
   <project path="external/stlport" name="platform/external/stlport" groups="pdk" revision="lollipop-mr1-release" />
   <project path="prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" groups="pdk,linux,arm" revision="kitkat-mr2.2-release" />
   <project path="external/busybox" name="android_external_busybox" remote="cm" />

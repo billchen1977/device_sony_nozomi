@@ -9,7 +9,7 @@
   <remote  name="cb" 
            fetch="https://github.com/billchen1977"  
            revision="refs/heads/marshmallow" /> 
-  <default revision="refs/tags/android-6.0.1_r3"
+  <default revision="refs/tags/android-6.0.1_r16"
            remote="aosp"
            sync-j="4" />
 

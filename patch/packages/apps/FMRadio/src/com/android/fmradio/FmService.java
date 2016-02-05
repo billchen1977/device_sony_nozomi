@@ -1458,7 +1458,6 @@ public class FmService extends Service implements FmRecorder.OnRecorderStateChan
         exitRenderThread();
         releaseAudioPatch();
         unregisterAudioPortUpdateListener();
-        mFmNative = null;
         super.onDestroy();
     }
 

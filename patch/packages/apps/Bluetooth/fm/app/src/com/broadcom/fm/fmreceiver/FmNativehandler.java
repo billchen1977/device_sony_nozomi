@@ -722,7 +722,13 @@ public final class FmNativehandler {
     }
 
     private void unRegisterIntent() {
-        mContext.unregisterReceiver(mIntentReceiver);
+        try {
+            mContext.unregisterReceiver(mIntentReceiver);
+        } catch (IllegalArgumentException ei) {
+        	
+        } catch (Exception e) {
+            Log.e(TAG, "unRegisterIntent failed", e);
+        }
         mClientName = null;
     }
 
